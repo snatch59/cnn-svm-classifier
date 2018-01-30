@@ -19,10 +19,10 @@ classify images, however for comparison this has been extended to the
 following:
 
 * Support Vector Machine (SVM)
-* Extra Tress (ET)
+* Extra Trees (ET)
 * Random Forest (RF)
 * K-Nearest Neighbor (KNN)
-* Multi-layer Perceptron (ML)
+* Multi-Layer Perceptron (ML)
 
 Training and validation time, and the accuracy of each classifier is
 displayed. Most classifier were run with their default tuning values,
@@ -77,6 +77,6 @@ laptop.
 
 ![caltech KNN confusion matrix](assets/knn_cm.png)
 
-## Multi-layer Perceptron
+## Multi-Layer Perceptron
 
 ![caltech MLP confusion matrix](assets/mlp_cm.png)
