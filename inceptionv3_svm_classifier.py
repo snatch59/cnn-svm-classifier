@@ -6,6 +6,7 @@ from sklearn.manifold import TSNE
 from sklearn.svm import LinearSVC
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
@@ -23,6 +24,7 @@ images_dir = 'caltech_101_images/'
 
 
 def create_graph():
+    """Create the CNN graph"""
     with gfile.FastGFile(os.path.join(model_dir, 'classify_image_graph_def.pb'), 'rb') as f:
         graph_def = tf.GraphDef()
         graph_def.ParseFromString(f.read())
@@ -30,6 +32,7 @@ def create_graph():
 
 
 def extract_features(list_images):
+    """Extract bottleneck features"""
     nb_features = 2048
     features = np.empty((len(list_images), nb_features))
     labels = []
@@ -59,10 +62,11 @@ def extract_features(list_images):
     return features, labels
 
 
-# feature plot
+# Graphics
 
 
 def plot_features(feature_labels, t_sne_features):
+    """feature plot"""
     plt.figure(figsize=(9, 9), dpi=100)
 
     uniques = {x: labels.count(x) for x in feature_labels}
@@ -84,10 +88,8 @@ def plot_features(feature_labels, t_sne_features):
     plt.show()
 
 
-# confusion matrix computation and display
-
-
 def plot_confusion_matrix(y_true, y_pred, matrix_title):
+    """confusion matrix computation and display"""
     plt.figure(figsize=(9, 9), dpi=100)
 
     # use sklearn confusion matrix
@@ -108,8 +110,27 @@ def plot_confusion_matrix(y_true, y_pred, matrix_title):
     plt.tight_layout()
     plt.ylabel('True label', fontsize=14)
     plt.xlabel('Predicted label', fontsize=14)
+    plt.tight_layout()
 
     plt.show()
+
+
+# Classifier performance
+
+
+def run_classifier(clfr, x_train_data, y_train_data, x_test_data, y_test_data, acc_str, matrix_header_str):
+    """run chosen classifier and display results"""
+    start_time = time.time()
+    clfr.fit(x_train_data, y_train_data)
+    y_pred = clfr.predict(x_test_data)
+    print("%f seconds" % (time.time() - start_time))
+
+    # confusion matrix computation and display
+    print(acc_str.format(accuracy_score(y_test_data, y_pred) * 100))
+    plot_confusion_matrix(y_test_data, y_pred, matrix_header_str)
+
+
+# Read in images and extract features
 
 
 # get images - labels are from the subdirectory names
@@ -135,7 +156,9 @@ else:
     pickle.dump(labels, open('labels', 'wb'))
     print('CNN features obtained and saved.')
 
+
 # Classification
+
 
 # TSNE defaults:
 # n_components=2, perplexity=30.0, early_exaggeration=12.0, learning_rate=200.0, n_iter=1000,
@@ -157,21 +180,16 @@ plot_features(labels, tsne_features)
 # prepare training and test datasets
 X_train, X_test, y_train, y_test = model_selection.train_test_split(features, labels, test_size=0.2, random_state=42)
 
+
 # LinearSVC defaults:
 # penalty=’l2’, loss=’squared_hinge’, dual=True, tol=0.0001, C=1.0, multi_class=’ovr’, fit_intercept=True,
 # intercept_scaling=1, class_weight=None, verbose=0, random_state=None, max_iter=1000
 
 # classify the images with a Linear Support Vector Machine (SVM)
 print('Support Vector Machine starting ...')
-start_time = time.time()
 clf = LinearSVC()
-clf.fit(X_train, y_train)
-y_pred_svm = clf.predict(X_test)
-print("%f seconds" % (time.time() - start_time))
+run_classifier(clf, X_train, y_train, X_test, y_test, "CNN-SVM Accuracy: {0:0.1f}%", "SVM Confusion matrix")
 
-# confusion matrix computation and display
-print("CNN-SVM Accuracy: {0:0.1f}%".format(accuracy_score(y_test, y_pred_svm) * 100))
-plot_confusion_matrix(y_test, y_pred_svm, "SVM Confusion matrix")
 
 # RandomForestClassifier/ExtraTreesClassifier defaults:
 # (n_estimators=10, criterion='gini’, max_depth=None, min_samples_split=2, min_samples_leaf=1,
@@ -181,28 +199,15 @@ plot_confusion_matrix(y_test, y_pred_svm, "SVM Confusion matrix")
 
 # classify the images with a Extra Trees Classifier
 print('Extra Trees Classifier starting ...')
-start_time = time.time()
 clf = ExtraTreesClassifier(n_jobs=4,  n_estimators=100, criterion='gini', min_samples_split=10,
                            max_features=50, max_depth=40, min_samples_leaf=4)
-clf.fit(X_train, y_train)
-y_pred_rf = clf.predict(X_test)
-print("%f seconds" % (time.time() - start_time))
-
-# confusion matrix computation and display
-print("CNN-ET Accuracy: {0:0.1f}%".format(accuracy_score(y_test, y_pred_rf) * 100))
-plot_confusion_matrix(y_test, y_pred_rf, "Extra Trees Confusion matrix")
+run_classifier(clf, X_train, y_train, X_test, y_test, "CNN-ET Accuracy: {0:0.1f}%", "Extra Trees Confusion matrix")
 
 # classify the images with a Random Forest Classifier
 print('Random Forest Classifier starting ...')
-start_time = time.time()
 clf = RandomForestClassifier(n_jobs=4, criterion='entropy', n_estimators=70, min_samples_split=5)
-clf.fit(X_train, y_train)
-y_pred_rf = clf.predict(X_test)
-print("%f seconds" % (time.time() - start_time))
+run_classifier(clf, X_train, y_train, X_test, y_test, "CNN-RF Accuracy: {0:0.1f}%", "Random Forest Confusion matrix")
 
-# confusion matrix computation and display
-print("CNN-RF Accuracy: {0:0.1f}%".format(accuracy_score(y_test, y_pred_rf) * 100))
-plot_confusion_matrix(y_test, y_pred_rf, "Random Forest Confusion matrix")
 
 # KNeighborsClassifier defaults:
 # n_neighbors=5, weights=’uniform’, algorithm=’auto’, leaf_size=30, p=2, metric=’minkowski’, metric_params=None,
@@ -210,12 +215,19 @@ plot_confusion_matrix(y_test, y_pred_rf, "Random Forest Confusion matrix")
 
 # classify the images with a k-Nearest Neighbors Classifier
 print('K-Nearest Neighbours Classifier starting ...')
-start_time = time.time()
 clf = KNeighborsClassifier(n_neighbors=1, n_jobs=4)
-clf.fit(X_train, y_train)
-y_pred_rf = clf.predict(X_test)
-print("%f seconds" % (time.time() - start_time))
+run_classifier(clf, X_train, y_train, X_test, y_test, "CNN-KNN Accuracy: {0:0.1f}%",
+               "K-Nearest Neighbor Confusion matrix")
 
-# confusion matrix computation and display
-print("CNN-KNN Accuracy: {0:0.1f}%".format(accuracy_score(y_test, y_pred_rf) * 100))
-plot_confusion_matrix(y_test, y_pred_rf, "K-Nearest Neighbor Confusion matrix")
+
+# MPLClassifier defaults:
+# hidden_layer_sizes=(100, ), activation=’relu’, solver=’adam’, alpha=0.0001, batch_size=’auto’,
+# learning_rate=’constant’, learning_rate_init=0.001, power_t=0.5, max_iter=200, shuffle=True, random_state=None,
+# tol=0.0001, verbose=False, warm_start=False, momentum=0.9, nesterovs_momentum=True, early_stopping=False,
+# validation_fraction=0.1, beta_1=0.9, beta_2=0.999, epsilon=1e-08
+
+# classify the image with a Multi-layer Perceptron Classifier
+print('Multi-layer Perceptron Classifier starting ...')
+clf = MLPClassifier()
+run_classifier(clf, X_train, y_train, X_test, y_test, "CNN-MLP Accuracy: {0:0.1f}%",
+               "Multi-layer Perceptron Confusion matrix")
