@@ -1,0 +1,6 @@
+.idea
+caltech_101_images
+features
+labels
+tsne_features.npz
+
