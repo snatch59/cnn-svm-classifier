@@ -7,6 +7,9 @@ from sklearn.svm import LinearSVC
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
@@ -231,3 +234,30 @@ print('Multi-layer Perceptron Classifier starting ...')
 clf = MLPClassifier()
 run_classifier(clf, X_train, y_train, X_test, y_test, "CNN-MLP Accuracy: {0:0.1f}%",
                "Multi-layer Perceptron Confusion matrix")
+
+# GaussianNB defaults:
+# priors=None
+
+# classify the images with a Gaussian Naive Bayes Classifier
+print('Gaussian Naive Bayes Classifier starting ...')
+clf = GaussianNB()
+run_classifier(clf, X_train, y_train, X_test, y_test, "CNN-GNB Accuracy: {0:0.1f}%",
+               "Gaussian Naive Bayes Confusion matrix")
+
+# LinearDiscriminantAnalysis defaults:
+# solver=’svd’, shrinkage=None, priors=None, n_components=None, store_covariance=False, tol=0.0001
+
+# classify the images with a Quadratic Discriminant Analysis Classifier
+print('Linear Discriminant Analysis Classifier starting ...')
+clf = LinearDiscriminantAnalysis()
+run_classifier(clf, X_train, y_train, X_test, y_test, "CNN-LDA Accuracy: {0:0.1f}%",
+               "Linear Discriminant Analysis Confusion matrix")
+
+# QuadraticDiscriminantAnalysis defaults:
+# priors=None, reg_param=0.0, store_covariance=False, tol=0.0001, store_covariances=None
+
+# classify the images with a Quadratic Discriminant Analysis Classifier
+print('Quadratic Discriminant Analysis Classifier starting ...')
+clf = QuadraticDiscriminantAnalysis()
+run_classifier(clf, X_train, y_train, X_test, y_test, "CNN-QDA Accuracy: {0:0.1f}%",
+               "Quadratic Discriminant Analysis Confusion matrix")

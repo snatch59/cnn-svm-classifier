@@ -23,12 +23,15 @@ following:
 * Random Forest (RF)
 * K-Nearest Neighbor (KNN)
 * Multi-Layer Perceptron (ML)
+* Gaussian Naive Bayes (GNB)
+* Linear Discriminant Analysis (LDA)
+* Quadratic Discriminant Analysis (QDA)
 
 Training and validation time, and the accuracy of each classifier is
-displayed. Most classifier were run with their default tuning values,
-however tuning was carried on those classifier that fell well below 90%
-accuracy for their defaults, such of Extra Trees and Random Forsest
-(initially in the 75 - 78% region).
+displayed. Most classifiers were run with their default tuning values,
+however tuning was carried, where possible, on those classifiers that
+fell well below 90% accuracy for their defaults, such of Extra Trees
+and Random Forsest (initially in the 75 - 78% region).
 
 A summary of the results is as follows (training/test time, accuracy):
 
@@ -37,6 +40,9 @@ A summary of the results is as follows (training/test time, accuracy):
 * RF: 16.47 sec, 90.8%
 * KNN: 2.2 sec, 91.5%
 * MLP: 13.83 sec, 97.1%
+* GNB: 1.1 sec, 91.8%
+* LDA: 4.95 sec, 91.0%
+* QDA: 0.84 sec, 5.3% (Variables are collinear warning!)
 
 Note that these results vary between runs, and are just representative.
 
@@ -80,3 +86,15 @@ laptop.
 ## Multi-Layer Perceptron
 
 ![caltech MLP confusion matrix](assets/mlp_cm.png)
+
+## Gaussian Naive Bayes
+
+![caltech GNB confusion matrix](assets/gnb_cm.png)
+
+## Linear Discriminant Analysis
+
+![caltech LDA confusion matrix](assets/lda_cm.png)
+
+## Quadratic Discriminant Analysis
+
+![caltech QDA confusion matrix](assets/qda_cm.png)
